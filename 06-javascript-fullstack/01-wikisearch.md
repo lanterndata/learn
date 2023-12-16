@@ -47,7 +47,7 @@ These are all the columns that [Cohere's Wikipedia embeddings dataset](https://h
 Now that we have a database with a table, let's create an index on our table. An index is a specialized data structure that will allow us to run queries on our data more efficiently. In particular, we need to create an index for our embeddings column so that Lantern can efficiently perform vector search on our embeddings.
 
 We can easily create an index on our `emb` column from the Lantern dashboard. We will use the cosine distance as the distance metric, which is the specific method of computing distance between two vectors that this index will use. We also specify that the vectors in this column will have 768 dimensions, because that is how large the vector embeddings from the Cohere embedding model are.
-![[https://storage.googleapis.com/lantern-blog/index-creation-dashboard.png]]
+![Index Creation Dashboard](https://storage.googleapis.com/lantern-blog/index-creation-dashboard.png)
 
 Note that we can also create the index after inserting rows into our passages, but we opted to create an index first because we plan to insert a lot of data (millions of rows). Hence, creating the index after we have inserted all of our data will require more processing and higher RAM on our database server (the RAM requirements for creating the index later might even be too high for your instance!). Generally, the decision as to whether to create an index before or after inserting data into your table depends on the specifics of your project, but creating one before inserting any data is almost always a good choice. Regardless, you only need to create the index once to start performing vector search on your data.
 
@@ -396,7 +396,7 @@ Finally, we can render our search results using the component we just made:
 
 Let's run the search query "how many devices has apple sold" and see what kind of results we get:
 
-![[https://storage.googleapis.com/lantern-blog/apple-query-demo.png]
+![Apple Query Demo](https://storage.googleapis.com/lantern-blog/apple-query-demo.png)
 
 As we can see, the passages returned are highly relevant to the search query. We can also see what the distance of each passage is, with the lowest distances (the perceived "most relevant" passages) being located at the top.
 
