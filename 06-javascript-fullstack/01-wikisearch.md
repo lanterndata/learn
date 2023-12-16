@@ -1,3 +1,5 @@
+# WikiSearch - Search For Wikipedia Embeddings
+
 In this article, we will go over how we built our [wikisearch demo](https://demos.lantern.dev/wikisearch).
 
 This demo performs a semantic similarity search between a query phrase that you type in and a large collection of text passages from Wikipedia articles. That is, you can search for the passages from Wikipedia that are the most relevant to any search query that you type in.
@@ -10,9 +12,9 @@ Hence, we will need to download these embeddings, store them in our Lantern data
 
 In this project, we use [Lantern Cloud](https://lantern.dev/) to host our vector-search enabled postgres database, and NextJS for our frontend and backend. We'll also use a script written in Python to aid in some one-time setup. If you wish to self-host an instance of Lantern, you can learn how to do so [here](https://lantern.dev/docs/develop/get-started).
 
-### Lantern Setup
+## Lantern Setup
 
-#### Creating a Database
+### Creating a Database
 
 We'll first set up a database named "wikisearch" using [Lantern Cloud](https://lantern.dev/). After this, we can copy a command from the Lantern dashboard to connect to our newly-created database. The command looks like this:
 
@@ -40,7 +42,7 @@ CREATE TABLE passages (
 
 These are all the columns that [Cohere's Wikipedia embeddings dataset](https://huggingface.co/datasets/Cohere/wikipedia-22-12-en-embeddings) contains.
 
-#### Creating an Index
+### Creating an Index
 
 Now that we have a database with a table, let's create an index on our table. An index is a specialized data structure that will allow us to run queries on our data more efficiently. In particular, we need to create an index for our embeddings column so that Lantern can efficiently perform vector search on our embeddings.
 
@@ -49,7 +51,7 @@ We can easily create an index on our `emb` column from the Lantern dashboard. We
 
 Note that we can also create the index after inserting rows into our passages, but we opted to create an index first because we plan to insert a lot of data (millions of rows). Hence, creating the index after we have inserted all of our data will require more processing and higher RAM on our database server (the RAM requirements for creating the index later might even be too high for your instance!). Generally, the decision as to whether to create an index before or after inserting data into your table depends on the specifics of your project, but creating one before inserting any data is almost always a good choice. Regardless, you only need to create the index once to start performing vector search on your data.
 
-#### Inserting Data
+### Inserting Data
 
 Once we've created our table and index, we are ready to start inserting data into our database. Since the dataset containing our embeddings is hosted on Hugging Face, let's write a helper script in Python that downloads these embeddings from the dataset, and then inserts them into our Lantern database.
 
