@@ -45,11 +45,11 @@ These are all the columns that [Cohere's Wikipedia embeddings dataset](https://h
 Now that we have a database with a table, let's create an index on our table. An index is a specialized data structure that will allow us to run queries on our data more efficiently. In particular, we need to create an index for our embeddings column so that Lantern can efficiently perform vector search on our embeddings.
 
 We can easily create an index on our `emb` column from the Lantern dashboard. We will use the cosine distance as the distance metric, which is the specific method of computing distance between two vectors that this index will use. We also specify that the vectors in this column will have 768 dimensions, because that is how large the vector embeddings from the Cohere embedding model are.
-![[index-creation-dashboard.png]]
+![[https://storage.googleapis.com/lantern-blog/index-creation-dashboard.png]]
 
 Note that we can also create the index after inserting rows into our passages, but we opted to create an index first because we plan to insert a lot of data (millions of rows). Hence, creating the index after we have inserted all of our data will require more processing and higher RAM on our database server (the RAM requirements for creating the index later might even be too high for your instance!). Generally, the decision as to whether to create an index before or after inserting data into your table depends on the specifics of your project, but creating one before inserting any data is almost always a good choice. Regardless, you only need to create the index once to start performing vector search on your data.
 
-#### Inserting Data 
+#### Inserting Data
 
 Once we've created our table and index, we are ready to start inserting data into our database. Since the dataset containing our embeddings is hosted on Hugging Face, let's write a helper script in Python that downloads these embeddings from the dataset, and then inserts them into our Lantern database.
 
@@ -59,7 +59,7 @@ To connect to our cloud-hosted database, we will be using the `psycopg2` library
 pip install datasets, psycopg2
 ```
 
-We'll then define our postgres connection URI. This URI is similar to the one we used to connect to psql, but we added the database password we specified when creating our database, so it'll have this structure:  `postgresql://username:password@netloc:port/dbname`. However, make sure to keep this value private, as it contains sensitive database credentials! We store and retrieve them as environment variables here. We also specify the table that we've created earlier:
+We'll then define our postgres connection URI. This URI is similar to the one we used to connect to psql, but we added the database password we specified when creating our database, so it'll have this structure: `postgresql://username:password@netloc:port/dbname`. However, make sure to keep this value private, as it contains sensitive database credentials! We store and retrieve them as environment variables here. We also specify the table that we've created earlier:
 
 ```python
 
@@ -82,18 +82,18 @@ from datasets import load_dataset
 entire_dataset = load_dataset("Cohere/wikipedia-22-12-en-embeddings", split="train", streaming=True)
 ```
 
-Let's now define a function called `batch_insert` which takes a list of samples from this dataset and inserts it into our postgres database. We choose to do this in batches to speed things up. 
+Let's now define a function called `batch_insert` which takes a list of samples from this dataset and inserts it into our postgres database. We choose to do this in batches to speed things up.
 
 ```python
 def batch_insert(rows):
 	start = time.time()
-	
+
 	data = [(row['id'], row['title'], row['text'], row['url'], row['wiki_id'], row['views'], row['paragraph_id'], row['langs'], row['emb']) for row in rows]
 
 	cur = conn.cursor()
 
 	query = f"INSERT INTO {TABLE_NAME} (id, title, text_content, url, wiki_id, views, paragraph_id, langs, emb) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-	
+
 	cur.executemany(query, data)
 
 	conn.commit()
@@ -101,7 +101,7 @@ def batch_insert(rows):
 	cur.close()
 
 	elapsed = time.time() - start
-	
+
 	return elapsed
 ```
 
@@ -162,7 +162,7 @@ Now that our database has data in it, let's start building the backend for our s
 
 After setting up a NextJS project, we'll first install the `pg` package which will allow us to connect to postgres:
 
-```bash 
+```bash
 npm install pg
 ```
 
@@ -173,7 +173,7 @@ We'll create a file called `db.js` and place it inside a `utils` folder, which w
 import { Pool } from "pg";
 
 const pool = new Pool({
-	connectionString: process.env.LANTERN_DB_PG_URI,
+  connectionString: process.env.LANTERN_DB_PG_URI,
 });
 
 export const DBQuery = (text, params) => pool.query(text, params);
@@ -191,8 +191,8 @@ Next, we will write a function to normalize the embeddings we receive from Coher
 
 ```javascript
 function normalizeVector(vector) {
-	let magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
-	return vector.map((val) => val / magnitude);
+  let magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
+  return vector.map((val) => val / magnitude);
 }
 ```
 
@@ -204,10 +204,10 @@ export default async function handler(req, res) {
 	if (req.method === "POST") {
 		const { query } = req.body; // the search query
 
-	// ... 
+	// ...
 	// rest of our code below
 	// ...
-	
+
 	} else {
 	// Handle any other HTTP methods
 	res.setHeader("Allow", ["POST"]);
@@ -220,39 +220,39 @@ The first thing we will do when processing a request with a search query is embe
 ```javascript
 // Get the embedding from cohere
 try {
-	const response = await  fetch("https://api.cohere.ai/v1/embed", {
-		method: "POST",
-		headers: {
-			accept: "application/json",
-			authorization: `Bearer ${process.env.COHERE_API_KEY}`,
-			"content-type": "application/json",
-		},
-		body: JSON.stringify({
-			texts: [query],
-			truncate: "END",
-			model: "embed-multilingual-v2.0",
-		}),
-	});
+  const response = await fetch("https://api.cohere.ai/v1/embed", {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      authorization: `Bearer ${process.env.COHERE_API_KEY}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      texts: [query],
+      truncate: "END",
+      model: "embed-multilingual-v2.0",
+    }),
+  });
 
-	if (!response.ok) {
-		throw new Error(`Error: ${response.status}`);
-	}
+  if (!response.ok) {
+    throw new Error(`Error: ${response.status}`);
+  }
 
-	const data = await response.json();
+  const data = await response.json();
 
-	// Check if the 'embeddings' field is present in the response
-	if (data && data.embeddings) {
-	var embedding_vector = data.embeddings[0];
-	embedding_vector = normalizeVector(embedding_vector);
-	} else {
-		throw new Error("Embeddings field not found in the response");
-	}
+  // Check if the 'embeddings' field is present in the response
+  if (data && data.embeddings) {
+    var embedding_vector = data.embeddings[0];
+    embedding_vector = normalizeVector(embedding_vector);
+  } else {
+    throw new Error("Embeddings field not found in the response");
+  }
 } catch (error) {
-	console.error("Cohere API call failed:", error);
-	res.status(500).json({
-		error: "Failed to fetch data from Cohere, or embeddings missing",
-	});
-	return;
+  console.error("Cohere API call failed:", error);
+  res.status(500).json({
+    error: "Failed to fetch data from Cohere, or embeddings missing",
+  });
+  return;
 }
 ```
 
@@ -282,16 +282,16 @@ Why do we use the `<=>` operator? Because this operator corresponds to the cosin
 
 Lastly, we only want the top 10 passages to show in our search results, so we include `LIMIT 10` at the end of the query. Note that the session setting `init_k` optimizes our index to more efficiently return a specific amount of nearest neighbors. So, if we instead wanted to return the top 25 results, we could run this query prior:
 
-```SQL 
+```SQL
 SET hnsw.init_k = 25;
 ```
 
-and our index will be optimized to return 25 neighbors instead. 
+and our index will be optimized to return 25 neighbors instead.
 
 Putting the above together, this is what the entire search process looks like:
 
 ```javascript
- // Perform vector search with Lantern
+// Perform vector search with Lantern
 const TABLE_NAME = "passages";
 
 await DBQuery("SET enable_seqscan = false;");
@@ -367,35 +367,37 @@ const SearchResult = ({ title, text, link, distance, bg_color }) => {
 Finally, we can render our search results using the component we just made:
 
 ```javascript
-  {searchResults.length > 0 && (
-	<div className="w-full mt-6">
-	  <div className="flex justify-between">
-		<p className="text-md text-gray-400">Results</p>
-	  </div>
+{
+  searchResults.length > 0 && (
+    <div className="w-full mt-6">
+      <div className="flex justify-between">
+        <p className="text-md text-gray-400">Results</p>
+      </div>
 
-	  <hr className="mb-2 h-0.5 border-t-0 bg-neutral-100 opacity-100" />
+      <hr className="mb-2 h-0.5 border-t-0 bg-neutral-100 opacity-100" />
 
-	  {searchResults.map((item, idx) => (
-		<SearchResult
-		  title={item.title}
-		  text={item.text_content}
-		  link={item.url}
-		  distance={item.cos_dist}
-		  bg_color={idx % 2 == 0 ? "bg-white" : "bg-gray-50"}
-		/>
-	  ))}
-	</div>
-  )}
+      {searchResults.map((item, idx) => (
+        <SearchResult
+          title={item.title}
+          text={item.text_content}
+          link={item.url}
+          distance={item.cos_dist}
+          bg_color={idx % 2 == 0 ? "bg-white" : "bg-gray-50"}
+        />
+      ))}
+    </div>
+  );
+}
 ```
 
 ## Example
 
 Let's run the search query "how many devices has apple sold" and see what kind of results we get:
 
-![[apple-query-demo.png]]
+![[https://storage.googleapis.com/lantern-blog/apple-query-demo.png]
 
 As we can see, the passages returned are highly relevant to the search query. We can also see what the distance of each passage is, with the lowest distances (the perceived "most relevant" passages) being located at the top.
 
 Thanks for reading along how we built this demo! We look forward to seeing what you build next with Lantern.
 
-The full code for this project can be found on [github](https://github.com/lanterndata/examples/tree/main/full-stack-demos/wiki-search). 
+The full code for this project can be found on [github](https://github.com/lanterndata/examples/tree/main/full-stack-demos/wiki-search).
