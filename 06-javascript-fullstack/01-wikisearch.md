@@ -152,7 +152,7 @@ for i, row in enumerate(entire_dataset):
 
 After letting this script run, we can verify that all our rows have successfully been inserted by running a query inside `psql`:
 
-```SQL
+```sql
 SELECT COUNT(*) FROM passages;
 ```
 
@@ -262,7 +262,7 @@ Note that we normalized the embedding we receive from Cohere above.
 
 Now that we have our embedding, all that remains is to run vector search with our database. First, we have to set the `enable_seqscan` variable to false:
 
-```SQL
+```sql
 SET enable_seqscan = false;
 ```
 
@@ -270,7 +270,7 @@ This will force postgres to use the index we created previously during queries o
 
 The query that performs the actual vector search looks like this:
 
-```SQL
+```sql
 SELECT title, text_content, url, cos_dist(emb, ARRAY[0.212, 0.12, ... this is our embedding vector...]) FROM passages ORDER BY emb <=> ARRAY[0.212, 0.12, ... this is our embedding vector...] LIMIT 10;
 ```
 
@@ -284,7 +284,7 @@ Why do we use the `<=>` operator? Because this operator corresponds to the cosin
 
 Lastly, we only want the top 10 passages to show in our search results, so we include `LIMIT 10` at the end of the query. Note that the session setting `init_k` optimizes our index to more efficiently return a specific amount of nearest neighbors. So, if we instead wanted to return the top 25 results, we could run this query prior:
 
-```SQL
+```sql
 SET hnsw.init_k = 25;
 ```
 
