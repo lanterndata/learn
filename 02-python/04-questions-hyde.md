@@ -36,7 +36,7 @@ df.head()
 ```table
 | ID     | Question                                   | Answer                                     |
 |--------|--------------------------------------------|--------------------------------------------|
-| 0      | Is Disability Insurance Required By Law?   | Not generally. There are five states that requ...
+| 0      | Is Disability Insurance Required By Law?   | Not generally. There are five states that requ... |
 | 1      | Can Creditors Take Life Insurance After... | If the person who passed away was the one with... |
 | 2      | Does Travelers Insurance Have Renters Ins...	| One of the insurance carriers I represent is T...|
 ```
