@@ -64,7 +64,6 @@ pip install datasets, psycopg2
 We'll then define our postgres connection URI. This URI is similar to the one we used to connect to psql, but we added the database password we specified when creating our database, so it'll have this structure: `postgresql://username:password@netloc:port/dbname`. However, make sure to keep this value private, as it contains sensitive database credentials! We store and retrieve them as environment variables here. We also specify the table that we've created earlier:
 
 ```python
-
 LANTERN_PG_URI = os.getenv("LANTERN_PG_URI")
 TABLE_NAME = "passages"
 ```
