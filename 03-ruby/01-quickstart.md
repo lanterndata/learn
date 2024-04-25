@@ -30,7 +30,7 @@ v4 = [2, 0, 1]
 conn.exec_params("INSERT INTO small_world (id, vector) VALUES ($1, $2), ($3, $4), ($5, $6), ($7, $8);", [1, v1, 2, v2, 3, v3, 4, v4])
 
 # Create an index
-conn.exec("CREATE INDEX ON small_world USING hnsw (vector);")
+conn.exec("CREATE INDEX ON small_world USING lantern_hnsw (vector);")
 
 # Vector search
 conn.exec("SET enable_seqscan = false;")

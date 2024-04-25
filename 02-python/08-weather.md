@@ -119,7 +119,7 @@ Also, as a good practice, we specify the dimension of the index (although lanter
 ```python
 cursor = conn.cursor()
 
-cursor.execute(f"CREATE INDEX ON {TABLE_NAME} USING hnsw (vector dist_cos_ops) WITH (dim=14);")
+cursor.execute(f"CREATE INDEX ON {TABLE_NAME} USING lantern_hnsw (vector dist_cos_ops) WITH (dim=14);")
 
 conn.commit()
 cursor.close()

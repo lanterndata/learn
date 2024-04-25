@@ -192,7 +192,7 @@ cursor.close()
 Now that we've inserted all of our embeddings into our database, we need to create an index on our table so that Lantern can efficiently perform vector search on it. We will use the cosine distance as the distance metric.
 
 ```sql
-CREATE INDEX on images USING hnsw (vector dist_cos_ops);
+CREATE INDEX on images USING lantern_hnsw (vector dist_cos_ops);
 ```
 
 ## Implementing the search

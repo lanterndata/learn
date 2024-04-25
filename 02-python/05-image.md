@@ -168,7 +168,7 @@ Note that we use L2-squared (squared Euclidean distance) as the distance metric.
 ```python
 cursor = conn.cursor()
 
-cursor.execute(f"CREATE INDEX ON {TABLE_NAME} USING hnsw (vector dist_l2sq_ops) WITH (dim=1280);")
+cursor.execute(f"CREATE INDEX ON {TABLE_NAME} USING lantern_hnsw (vector dist_l2sq_ops) WITH (dim=1280);")
 
 conn.commit()
 cursor.close()

@@ -44,7 +44,7 @@ public class LanternQuickstart {
             }
 
             // Creating an Index
-            String createIndexQuery = "CREATE INDEX ON small_world USING hnsw (vector);";
+            String createIndexQuery = "CREATE INDEX ON small_world USING lantern_hnsw (vector);";
             stmt.execute(createIndexQuery);
 
             // Vector Search

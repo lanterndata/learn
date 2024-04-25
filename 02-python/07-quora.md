@@ -174,7 +174,7 @@ Note that we specify cosine distance as the distance metric, as we mentioned ear
 ```python
 cursor = conn.cursor()
 
-cursor.execute("CREATE INDEX ON questions USING hnsw (vector dist_cos_ops) WITH (dim=384);")
+cursor.execute("CREATE INDEX ON questions USING lantern_hnsw (vector dist_cos_ops) WITH (dim=384);")
 
 conn.commit()
 cursor.close()

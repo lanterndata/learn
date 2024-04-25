@@ -72,10 +72,10 @@ Note that we can specify options and parameters to our index creation. For examp
 ```python
 cursor = conn.cursor()
 
-cursor.execute("CREATE INDEX ON small_world USING hnsw (vector);")
+cursor.execute("CREATE INDEX ON small_world USING lantern_hnsw (vector);")
 
 # We can also specify additional parameters to the index like this:
-"""CREATE INDEX ON small_world USING hnsw (vector dist_l2sq_ops)
+"""CREATE INDEX ON small_world USING lantern_hnsw (vector dist_l2sq_ops)
 WITH
 (M=2, ef_construction=10, ef=4, dim=3);"""
 

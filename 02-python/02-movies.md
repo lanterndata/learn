@@ -123,7 +123,7 @@ Note that we specify L2-squared distance as the distance metric. Also, as a good
 ```python
 cursor = conn.cursor()
 
-cursor.execute(f"CREATE INDEX ON {TABLE_NAME} USING hnsw (vector dist_l2sq_ops) WITH (dim=32);")
+cursor.execute(f"CREATE INDEX ON {TABLE_NAME} USING lantern_hnsw (vector dist_l2sq_ops) WITH (dim=32);")
 
 conn.commit()
 cursor.close()
